@@ -5,8 +5,9 @@ package cz.encircled.spoon
  */
 class ExecResult(private val output: String = "", private val error: String = "") {
 
-    // Git sends "Cloning into" to the error stream for some reason
-    private val isError: Boolean = error.isNotEmpty() && !error.startsWith("Cloning into ")
+    // Git sends everything into error stream for some reason
+    private val isError: Boolean = error.isNotEmpty() &&
+            (!error.startsWith("Cloning into ") || error.contains("fatal"))
 
     private var isInterrupted: Boolean = false
 
@@ -32,7 +33,7 @@ class ExecResult(private val output: String = "", private val error: String = ""
             else this
 
     /**
-     * Exec string as a OS command
+     * Exec string as an OS command
      */
     fun thenExec(command: String): ExecResult {
         val exec = Runtime.getRuntime().exec(command)
