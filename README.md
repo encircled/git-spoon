@@ -31,7 +31,7 @@ where:
 - `interval` - changes polling interval represented in duration units (i.e. 2M is 2 minutes and 30S is 30 seconds)
 - `namespace` - target kubernetes namespace
 
-Changes in deployment configuration are synchronized each few minutes in runtime, without need to restart Git spoon
+Changes in the deployment configuration are synchronized each few minutes in runtime, without need to restart Git spoon
 
 Path to configuration repository must be passed either via args (`--configRepo`) or via environment varialbe (`configRepo`)
 
