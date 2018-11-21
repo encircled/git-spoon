@@ -35,3 +35,5 @@ Changes in the deployment configuration are synchronized each few minutes in run
 
 Path to configuration repository must be passed either via args (`--configRepo`) or via environment varialbe (`configRepo`)
 
+## Docker image
+encircled/git-spoon
