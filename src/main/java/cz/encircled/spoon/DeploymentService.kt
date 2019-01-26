@@ -5,13 +5,20 @@ import cz.encircled.spoon.FileUtils.nestedPath
 import cz.encircled.spoon.FileUtils.prepareCleanDirectory
 import cz.encircled.spoon.Log.fatal
 import cz.encircled.spoon.Log.info
+import io.ktor.application.call
+import io.ktor.http.ContentType
+import io.ktor.response.respondText
+import io.ktor.routing.get
+import io.ktor.routing.routing
+import io.ktor.server.engine.embeddedServer
+import io.ktor.server.netty.Netty
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.set
 import kotlin.concurrent.fixedRateTimer
 
-
-class Application(private val configRepo: String, private val workingDir: String) {
+class DeploymentService(private val configRepo: String, private val workingDir: String) {
 
     private val deployments: MutableMap<String, Deployment> = HashMap()
 
@@ -140,5 +147,15 @@ fun main(args: Array<String>) {
 
     if (configRepo.isNullOrEmpty()) fatal("Configuration repository must be set either via args [--configRepo] or environment variables [configRepo]")
 
-    Application(configRepo!!, workingDir)
+    DeploymentService(configRepo!!, workingDir)
+
+    val server = embeddedServer(Netty) {
+        routing {
+            get("/") {
+                call.respondText("{\"status\":1}", ContentType.Application.Json)
+            }
+        }
+    }
+
+    server.start(true)
 }
