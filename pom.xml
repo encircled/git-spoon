@@ -109,7 +109,7 @@
                             <archive>
                                 <manifest>
                                     <addClasspath>true</addClasspath>
-                                    <mainClass>io.ktor.server.netty.EngineMain</mainClass>
+                                    <mainClass>cz.encircled.spoon.DeploymentServiceKt</mainClass>
                                 </manifest>
                             </archive>
                             <descriptorRefs>
