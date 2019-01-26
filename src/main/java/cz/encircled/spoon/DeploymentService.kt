@@ -6,8 +6,10 @@ import cz.encircled.spoon.FileUtils.prepareCleanDirectory
 import cz.encircled.spoon.Log.fatal
 import cz.encircled.spoon.Log.info
 import io.ktor.application.call
-import io.ktor.http.ContentType
-import io.ktor.response.respondText
+import io.ktor.application.install
+import io.ktor.features.ContentNegotiation
+import io.ktor.jackson.jackson
+import io.ktor.response.respond
 import io.ktor.routing.get
 import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
@@ -20,7 +22,7 @@ import kotlin.concurrent.fixedRateTimer
 
 class DeploymentService(private val configRepo: String, private val workingDir: String) {
 
-    private val deployments: MutableMap<String, Deployment> = HashMap()
+    val deployments: MutableMap<String, Deployment> = HashMap()
 
     init {
         prepareCleanDirectory(workingDir)
@@ -143,16 +145,28 @@ fun main(args: Array<String>) {
                     { it.split("=")[1] }
             )
     val configRepo = System.getenv("configRepo") ?: mappedArgs["configRepo"]
-    val workingDir = System.getenv("workingDir") ?: mappedArgs["workingDir"] ?: "/tmp-dir"
+    val workingDir = System.getenv("workingDir") ?: mappedArgs["workingDir"] ?: "/tmp"
 
     if (configRepo.isNullOrEmpty()) fatal("Configuration repository must be set either via args [--configRepo] or environment variables [configRepo]")
 
-    DeploymentService(configRepo!!, workingDir)
+    val service = DeploymentService(configRepo!!, workingDir)
 
     val server = embeddedServer(Netty) {
+        install(ContentNegotiation) {
+            jackson {
+            }
+        }
         routing {
-            get("/") {
-                call.respondText("{\"status\":1}", ContentType.Application.Json)
+            get("/deployment") {
+                call.respond(service.deployments)
+            }
+            get("/deployment/{code}") {
+                call.respond(service.deployments[call.parameters["code"]]!!)
+            }
+            get("/deployment/{code}/fire") {
+                val deployment = service.deployments[call.parameters["code"]]!!
+
+                call.respond(deployment.perform())
             }
         }
     }

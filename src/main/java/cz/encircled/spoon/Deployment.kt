@@ -1,8 +1,8 @@
 package cz.encircled.spoon
 
+import cz.encircled.spoon.Log.error
 import cz.encircled.spoon.Log.info
 import cz.encircled.spoon.Log.warn
-import cz.encircled.spoon.Log.error
 import kotlinx.coroutines.async
 import java.time.Duration
 import java.util.*
@@ -32,10 +32,9 @@ class Deployment(val params: DeploymentParams) {
     }
 
     private fun validateParams(params: DeploymentParams) {
-        if (params.repository.isEmpty()) Log.fatal("Source repository must be set using --repo")
-        if (params.namespace.isEmpty()) Log.fatal("Kubernetes namespace must be set using --ns")
-//        if (params.interval < 0) Log.fatal("Re-scan interval must be set using --ns")
-        if (params.workingDir.isEmpty()) Log.fatal("Working dir must be set using --ns")
+        if (params.repository.isEmpty()) Log.fatal("Source repository must be set")
+        if (params.namespace.isEmpty()) Log.fatal("Kubernetes namespace must be set")
+        if (params.workingDir.isEmpty()) Log.fatal("Working dir must be set")
     }
 
     private fun parseDuration(source: String): Long =
@@ -43,10 +42,10 @@ class Deployment(val params: DeploymentParams) {
 
     fun terminate() = timer.cancel()
 
-    private fun perform() {
+    fun perform(): ExecResult {
         val currDir = FileUtils.nestedPath(params.workingDir, params.name)
 
-        FileUtils.prepareCleanDirectory(currDir)
+        return FileUtils.prepareCleanDirectory(currDir)
                 .onError { error(it) }
 
                 .then { info("${params.name} - Performing git clone") }

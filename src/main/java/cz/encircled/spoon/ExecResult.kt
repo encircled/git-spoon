@@ -3,7 +3,7 @@ package cz.encircled.spoon
 /**
  * Allows chaining methods invocations and interrupting the whole chain on error
  */
-class ExecResult(private val output: String = "", private val error: String = "") {
+class ExecResult(val output: String = "", val error: String = "") {
 
     // Git sends everything into error stream for some reason
     private val isError: Boolean = error.isNotEmpty() &&
